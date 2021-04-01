@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- <param name="robot_description" textfile="$(find stewart)/sdf/stewart/model.sdf"/> -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find imu_state_estimation)/models/stewart/stewart_robot.urdf.xacro'"/>
+
+  <node name="stewart_ik" pkg="imu_state_estimation" type="fake_stewart_ik.py"/>
+
+  <!-- The semantic description that corresponds to the URDF -->
+  <param name="robot_description_semantic" textfile="$(find imu_state_estimation)/models/stewart/stewart.srdf" />
+
+  <!-- send fake joint values -->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="false"/>
+  </node>
+
+
+  <!-- Run the main MoveIt executable without trajectory execution (we do not have controllers configured by default) -->
+  <!-- <include file="$(find imu_state_estimation)/launch/helpers/move_group_stewart.launch"> </include> -->
+
+  <!-- Combine joint values -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
+
+  <!-- Run Rviz and load the default config to see the state of the move_group node -->
+  <include file="$(find imu_state_estimation)/launch/helpers/moveit_rviz.launch">
+    <arg name="config" value="true"/>
+  </include>
+
+  <!-- Publish Actuators -->
+  <node name="actuator_publisher_node" pkg="imu_state_estimation" type="actuator_publisher.py"/>
+
+</launch>
